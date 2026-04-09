@@ -8,6 +8,7 @@ import { registerRoutingTools } from "./tools/routing.js";
 import { registerMapsTools } from "./tools/maps.js";
 import { registerLocationTools } from "./tools/location.js";
 import { registerEnvironmentTools } from "./tools/environment.js";
+import { registerAdvancedTools } from "./tools/advanced.js";
 
 const server = new McpServer({
   name: "google-maps-mcp",
@@ -21,6 +22,7 @@ registerRoutingTools(server);
 registerMapsTools(server);
 registerLocationTools(server);
 registerEnvironmentTools(server);
+registerAdvancedTools(server);
 
 // Start server
 const transport = new StdioServerTransport();
