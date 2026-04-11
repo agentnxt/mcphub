@@ -428,13 +428,16 @@
         "OPA_URL": ""
       }
     },
-    "postgres": {
+    "dbhub": {
       "type": "STDIO",
-      "description": "MCP server for interacting with PostgreSQL databases",
+      "description": "MCP server for databases — PostgreSQL, MySQL, SQLite, SQL Server, MariaDB (via Bytebase DBHub)",
       "command": "node",
       "args": [
-        "packages/postgres-mcp-server/dist/index.js"
-      ]
+        "packages/dbhub-mcp-server/dist/index.js"
+      ],
+      "env": {
+        "DATABASE_URL": ""
+      }
     },
     "postiz": {
       "type": "STDIO",
@@ -448,18 +451,13 @@
         "POSTIZ_URL": ""
       }
     },
-    "puppeteer": {
+    "playwright": {
       "type": "STDIO",
-      "description": "MCP server for browser automation using Puppeteer",
+      "description": "MCP server for browser automation using Microsoft Playwright",
       "command": "node",
       "args": [
-        "packages/puppeteer-mcp-server/dist/index.js"
-      ],
-      "env": {
-        "ALLOW_DANGEROUS": "",
-        "DOCKER_CONTAINER": "",
-        "PUPPETEER_LAUNCH_OPTIONS": ""
-      }
+        "packages/playwright-mcp-server/dist/index.js"
+      ]
     },
     "qdrant": {
       "type": "STDIO",
@@ -680,6 +678,73 @@
         "ZABBIX_PASSWORD": "",
         "ZABBIX_URL": "",
         "ZABBIX_USER": ""
+      }
+    },
+
+    "__comment_cloud": "=== CLOUD/HOSTED MCP SERVERS (Remote SSE/Streamable HTTP) ===",
+
+    "cloud-notion": {
+      "type": "SSE",
+      "description": "Notion hosted MCP — workspaces, pages, databases, search, comments",
+      "url": "https://mcp.notion.com/sse",
+      "env": {
+        "__AUTH": "OAuth 2.1 — connect via Notion integration"
+      }
+    },
+    "cloud-cloudflare": {
+      "type": "SSE",
+      "description": "Cloudflare hosted MCP — Workers, KV, R2, D1, DNS, analytics, observability",
+      "url": "https://mcp.cloudflare.com/sse",
+      "env": {
+        "__AUTH": "OAuth — connect via Cloudflare account"
+      }
+    },
+    "cloud-sentry": {
+      "type": "SSE",
+      "description": "Sentry hosted MCP — error tracking, issues, events, releases, performance",
+      "url": "https://mcp.sentry.dev/sse",
+      "env": {
+        "__AUTH": "OAuth — connect via Sentry account"
+      }
+    },
+    "cloud-linear": {
+      "type": "SSE",
+      "description": "Linear hosted MCP — issues, projects, cycles, teams, labels",
+      "url": "https://mcp.linear.app/sse",
+      "env": {
+        "__AUTH": "OAuth or API Key (Bearer token)"
+      }
+    },
+    "cloud-stripe": {
+      "type": "SSE",
+      "description": "Stripe hosted MCP — payments, customers, subscriptions, invoices, products",
+      "url": "https://mcp.stripe.com/sse",
+      "env": {
+        "__AUTH": "OAuth — connect via Stripe account"
+      }
+    },
+    "cloud-figma": {
+      "type": "SSE",
+      "description": "Figma hosted MCP — design files, components, styles, variables, Dev Mode",
+      "url": "https://mcp.figma.com/sse",
+      "env": {
+        "__AUTH": "OAuth — requires Figma account + Dev Mode seat"
+      }
+    },
+    "cloud-netlify": {
+      "type": "SSE",
+      "description": "Netlify hosted MCP — sites, deploys, builds, DNS, forms, serverless functions",
+      "url": "https://netlify-mcp.netlify.app/sse",
+      "env": {
+        "__AUTH": "OAuth 2.1 — connect via Netlify account"
+      }
+    },
+    "cloud-slack": {
+      "type": "SSE",
+      "description": "Slack hosted MCP — channels, messages, users, reactions, files (Streamable HTTP only)",
+      "url": "https://mcp.slack.com/sse",
+      "env": {
+        "__AUTH": "OAuth — requires registered Slack app with client ID"
       }
     }
   }
