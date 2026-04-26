@@ -24,6 +24,147 @@ This profile is intentionally permissive and incrementally enrichable. Registry 
 | Concrete API endpoint | `EntryPoint` | Describes a deployed endpoint such as `/mcp`. |
 | Publisher, maintainer, or provider | `Organization` / `Person` | Describes who provides or publishes the server. |
 
+## Schema.org validation workflow
+
+Use Schema.org Markup Validator to validate the public Schema.org layer of a registry entry.
+
+The validator can validate structured data by fetching a page URL or by accepting pasted markup. It extracts JSON-LD, RDFa, and Microdata; displays the extracted structured data graph; and identifies syntax mistakes. It is focused on Schema.org, so it should not be treated as the only validator for AgentNxt `mcp.*` extension fields.
+
+### What to validate with Schema.org Markup Validator
+
+Validate these fields and shapes:
+
+- JSON-LD syntax
+- `@context`
+- `@type`
+- `WebApplication`
+- `WebAPI`
+- `APIReference`
+- `EntryPoint`
+- `isBasedOn`
+- `sameAs`
+- `provider`
+- `softwareRequirements`
+- `runtimePlatform`
+- `license`
+- `documentation`
+- `potentialAction`
+
+### What not to expect from Schema.org Markup Validator
+
+Do not expect the Schema.org validator to fully validate AgentNxt-specific fields such as:
+
+- `mcp.canonicalId`
+- `mcp.authority`
+- `mcp.trust`
+- `mcp.transports`
+- `mcp.deployment`
+- `mcp.auth`
+
+Those are AgentNxt extension fields. Validate their shape with `registry/schema.json` and registry tooling.
+
+### Manual validation steps
+
+1. Copy a registry entry JSON object.
+2. Wrap it in an HTML page as JSON-LD:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Schema.org validation fixture</title>
+    <script type="application/ld+json">
+    {
+      "@context": {
+        "@vocab": "https://schema.org/",
+        "mcp": "https://agentnxt.dev/ns/mcp#"
+      },
+      "@type": "WebApplication",
+      "name": "Example MCP Server",
+      "mcp": {
+        "canonicalId": "https://github.com/example/example-mcp-server"
+      }
+    }
+    </script>
+  </head>
+  <body></body>
+</html>
+```
+
+3. Paste the HTML into Schema.org Markup Validator.
+4. Confirm the Schema.org graph extracts cleanly.
+5. Review any warnings or type/value mismatches.
+6. Validate the same raw JSON file with `registry/schema.json` for AgentNxt profile checks.
+
+### Recommended validation levels
+
+| Level | Tool | Purpose |
+|---|---|---|
+| JSON syntax | `python -m json.tool` | Confirms registry entry is valid JSON. |
+| AgentNxt profile | `registry/schema.json` | Confirms known AgentNxt and Schema.org-profile fields have expected shapes when present. |
+| Schema.org graph | Schema.org Markup Validator | Confirms JSON-LD extracts as Schema.org structured data. |
+| Registry semantics | human review / registry tooling | Confirms canonical ID, provenance, trust, and derivation semantics are correct. |
+
+### Example validation fixture for WebApplication + WebAPI + APIReference
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Google Analytics MCP validation fixture</title>
+    <script type="application/ld+json">
+    {
+      "@context": {
+        "@vocab": "https://schema.org/",
+        "mcp": "https://agentnxt.dev/ns/mcp#"
+      },
+      "@type": "WebApplication",
+      "@id": "https://github.com/agentnxt/mcp-registry/tree/main/google-analytics-mcp-server",
+      "name": "AgentNxt Google Analytics MCP Wrapper",
+      "url": "https://github.com/agentnxt/mcp-registry/tree/main/google-analytics-mcp-server",
+      "isBasedOn": "https://github.com/googleanalytics/google-analytics-mcp",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "MCP Server",
+      "runtimePlatform": ["Python 3.10+", "Docker", "Google Cloud Run"],
+      "softwareRequirements": [
+        "analytics-mcp",
+        "mcp-proxy",
+        "Google Analytics Admin API",
+        "Google Analytics Data API"
+      ],
+      "subjectOf": {
+        "@type": "WebAPI",
+        "@id": "https://github.com/agentnxt/mcp-registry/tree/main/google-analytics-mcp-server#api",
+        "name": "Google Analytics MCP API",
+        "serviceType": "MCP Streamable HTTP API",
+        "documentation": {
+          "@type": "APIReference",
+          "@id": "https://github.com/agentnxt/mcp-registry/tree/main/google-analytics-mcp-server#api-reference",
+          "url": "https://github.com/agentnxt/mcp-registry/tree/main/google-analytics-mcp-server#readme"
+        },
+        "potentialAction": {
+          "@type": "Action",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://example.run.app/mcp",
+            "httpMethod": "POST",
+            "encodingType": "application/json",
+            "contentType": "application/json"
+          }
+        }
+      },
+      "mcp": {
+        "canonicalId": "https://github.com/agentnxt/mcp-registry/tree/main/google-analytics-mcp-server"
+      }
+    }
+    </script>
+  </head>
+  <body></body>
+</html>
+```
+
 ## Identity model
 
 The registry separates three identity layers:
