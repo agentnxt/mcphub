@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/agentnxt/mcp-registry/blob/main/registry/schema.json",
-  "$comment": "Permissive, incrementally extensible Schema.org WebApplication profile for AgentNxt MCP registry entries. Nothing is mandatory. Known fields are validated when present. Unknown Schema.org and MCP extension fields are allowed. Use mcp.canonicalId as the stable MCP server identity. Prefer a canonical URL controlled by the software publisher. Use trust.publisherDomain and trust.score to express domain authority/provenance separately from identity.",
+  "$comment": "Permissive, incrementally extensible Schema.org WebApplication profile for AgentNxt MCP registry entries. Nothing is mandatory. Known fields are validated when present. Unknown Schema.org and MCP extension fields are allowed. Use mcp.canonicalId as the stable MCP server identity. Prefer a canonical URL controlled by the software publisher. Use WebAPI to describe hosted MCP APIs and APIReference to describe their documentation. Use trust.publisherDomain and trust.score to express domain authority/provenance separately from identity.",
   "title": "AgentNxt MCP Registry WebApplication Profile",
   "description": "A non-blocking JSON-LD/Schema.org profile for MCP registry entries. Records may start partial and be enriched over time.",
   "type": "object",
@@ -41,6 +41,10 @@
     "mainEntity": { "$ref": "#/$defs/thingOrUrl" },
     "mainEntityOfPage": { "$ref": "#/$defs/thingOrUrl" },
     "about": { "$ref": "#/$defs/thingOrUrlOrArray" },
+    "subjectOf": { "$ref": "#/$defs/thingOrUrlOrArray" },
+    "hasPart": { "$ref": "#/$defs/thingOrArray" },
+    "isPartOf": { "$ref": "#/$defs/thingOrUrlOrArray" },
+    "isBasedOn": { "$ref": "#/$defs/thingOrUrlOrArray" },
     "name": { "type": "string" },
     "alternateName": { "$ref": "#/$defs/stringOrStringArray" },
     "description": { "type": "string" },
@@ -70,6 +74,8 @@
     "softwareVersion": { "type": "string" },
     "storageRequirements": { "$ref": "#/$defs/textOrUrl" },
     "supportingData": { "$ref": "#/$defs/thingOrArray" },
+    "documentation": { "$ref": "#/$defs/thingOrUrlOrArray" },
+    "potentialAction": { "$ref": "#/$defs/thingOrArray" },
     "abstract": { "type": "string" },
     "accessMode": { "$ref": "#/$defs/textOrTextArray" },
     "accessModeSufficient": {
@@ -110,6 +116,8 @@
     "review": { "$ref": "#/$defs/thingOrArray" },
     "aggregateRating": { "$ref": "#/$defs/thing" },
     "provider": { "$ref": "#/$defs/thing" },
+    "serviceType": { "$ref": "#/$defs/textOrUrl" },
+    "termsOfService": { "$ref": "#/$defs/textOrUrl" },
     "trust": { "$ref": "#/$defs/trust" },
     "mcp": {
       "type": "object",
@@ -146,6 +154,12 @@
           }
         },
         "trust": { "$ref": "#/$defs/trust" },
+        "api": { "$ref": "#/$defs/webAPI" },
+        "apiReference": { "$ref": "#/$defs/apiReference" },
+        "endpoints": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/entryPoint" }
+        },
         "status": { "type": "string" },
         "category": { "type": "string" },
         "tags": { "type": "array", "items": { "type": "string" } },
@@ -221,6 +235,67 @@
         "name": { "type": "string" },
         "url": { "type": "string", "format": "uri-reference" },
         "sameAs": { "$ref": "#/$defs/stringOrStringArray" }
+      }
+    },
+    "webAPI": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "@type": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "@id": { "type": "string", "format": "uri-reference" },
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri-reference" },
+        "documentation": { "$ref": "#/$defs/thingOrUrlOrArray" },
+        "provider": { "$ref": "#/$defs/thing" },
+        "serviceType": { "$ref": "#/$defs/textOrUrl" },
+        "termsOfService": { "$ref": "#/$defs/textOrUrl" },
+        "potentialAction": { "$ref": "#/$defs/thingOrArray" }
+      }
+    },
+    "apiReference": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "@type": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "@id": { "type": "string", "format": "uri-reference" },
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri-reference" },
+        "about": { "$ref": "#/$defs/thingOrUrlOrArray" },
+        "dependencies": { "$ref": "#/$defs/textOrTextArray" },
+        "proficiencyLevel": { "type": "string" },
+        "assemblyVersion": { "type": "string" },
+        "executableLibraryName": { "type": "string" },
+        "programmingModel": { "type": "string" },
+        "targetPlatform": { "type": "string" },
+        "version": { "type": ["string", "number"] }
+      }
+    },
+    "entryPoint": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "@type": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "@id": { "type": "string", "format": "uri-reference" },
+        "urlTemplate": { "type": "string" },
+        "httpMethod": { "type": "string" },
+        "contentType": { "type": "string" },
+        "encodingType": { "type": "string" },
+        "actionApplication": { "$ref": "#/$defs/thing" }
       }
     },
     "propertyValue": {
