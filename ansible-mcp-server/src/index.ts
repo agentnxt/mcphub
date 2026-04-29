@@ -49,6 +49,10 @@ function getAnsibleBin(): string {
   return process.env.ANSIBLE_BIN ?? "ansible";
 }
 
+function getInventoryBin(): string {
+  return process.env.ANSIBLE_INVENTORY_BIN ?? "ansible-inventory";
+}
+
 function getPlaybookBin(): string {
   return process.env.ANSIBLE_PLAYBOOK_BIN ?? "ansible-playbook";
 }
@@ -127,13 +131,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (request.params.name) {
     case "health": {
       const ansibleBin = getAnsibleBin();
+      const inventoryBin = getInventoryBin();
       const playbookBin = getPlaybookBin();
       const payload = {
         server: "ansible-mcp-server",
         status: "ready",
         protocol: "stdio",
         command_bindings: {
-          check_inventory: `${ansibleBin}-inventory --list`,
+          check_inventory: `${inventoryBin} --list`,
           dry_run_playbook: `${playbookBin} <playbook> --check`,
           gather_facts: `ansible all -m setup`,
         },
@@ -141,7 +146,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return { content: [{ type: "text", text: JSON.stringify(payload, null, 2) }] };
     }
     case "check_inventory": {
-      const ansibleBin = getAnsibleBin();
+      const inventoryBin = getInventoryBin();
       const input = CheckInventoryInputSchema.parse(request.params.arguments ?? {});
       const inventory = getInventory(input.inventory);
       if (!inventory) {
@@ -158,7 +163,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
         return { content: [{ type: "text", text: JSON.stringify(errorResult, null, 2) }] };
       }
-      const result = await runCommand(ansibleBin, ["-i", inventory, "--list"]);
+      const result = await runCommand(inventoryBin, ["-i", inventory, "--list"]);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
     case "dry_run_playbook": {
