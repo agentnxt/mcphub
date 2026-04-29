@@ -76,6 +76,11 @@ jobs:
           - woocommerce-mcp-server
           - wuzapi-mcp-server
           - zabbix-mcp-server
+          - microcloud-mcp-server
+          - lxc-mcp-server
+          - ansible-mcp-server
+          - terraform-mcp-server
+          - gcloud-run-mcp-server
       max-parallel: 4
       fail-fast: false
 
