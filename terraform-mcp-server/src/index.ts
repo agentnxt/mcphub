@@ -164,19 +164,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const input = ShowStateSummaryInputSchema.parse(request.params.arguments ?? {});
       const planFile = input.plan_file ?? getPlanOut();
       const workdir = getWorkdir();
-      
-      // Determine if plan_file is an absolute path
+      // Check if plan file exists before attempting to show
       const fs = await import("node:fs");
-      const isAbsolute = planFile.startsWith("/");
-      const planPath = isAbsolute ? planFile : `${workdir}/${planFile}`;
-      
-      // Check if plan file exists
+      const planPath = `${workdir}/${planFile}`;
       if (!fs.existsSync(planPath)) {
         const errorResult: CommandResult = {
           tool: "terraform",
           action: "show_state_summary",
           status: "error",
-          summary: `Plan file '${planFile}' not found at '${planPath}'.`,
+          summary: `Plan file '${planFile}' not found in '${workdir}'.`,
           stdout: "",
           stderr: `Plan file '${planFile}' not found at path: ${planPath}`,
           exit_code: 1,
@@ -185,10 +181,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
         return { content: [{ type: "text", text: JSON.stringify(errorResult, null, 2) }] };
       }
-      // For absolute paths, use file directly; otherwise prepend workdir
-      const showArg = isAbsolute ? planPath : planFile;
-      const cwd = isAbsolute ? undefined : workdir;
-      const result = await runCommand(terraformBin, ["show", "-json", showArg], { cwd });
+      const result = await runCommand(terraformBin, ["show", "-json", planFile], { cwd: workdir });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
     default:
