@@ -158,7 +158,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
         return { content: [{ type: "text", text: JSON.stringify(errorResult, null, 2) }] };
       }
-      const result = await runCommand(ansibleBin, ["-inventory", inventory, "--list"]);
+      const result = await runCommand(ansibleBin, ["-i", inventory, "--list"]);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
     case "dry_run_playbook": {
@@ -205,7 +205,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
         return { content: [{ type: "text", text: JSON.stringify(errorResult, null, 2) }] };
       }
-      const args = ["all", "-m", "setup"];
+      const args = ["all", "-m", "setup", "-i", inventory];
       if (input.limit) args.push("--limit", input.limit);
       const result = await runCommand(ansibleBin, args, { timeout: 120_000 });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };

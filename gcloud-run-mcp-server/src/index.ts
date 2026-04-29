@@ -227,7 +227,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         "services",
         "logs",
         "read",
-        "--service",
         input.service,
         "--limit",
         String(limit),
