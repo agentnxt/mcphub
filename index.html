@@ -1,318 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCP Registry by AgentNxt | Model Context Protocol Servers</title>
-    <meta name="description" content="Production-ready MCP servers for your entire stack. 70+ servers, 1000+ tools.">
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MEASUREMENT_ID"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MEASUREMENT_ID');
-    </script>
-    
-    <!-- Matomo -->
-    <script>
-      var _paq = window._paq = window._paq || [];
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u='https://MATOMO_URL/';
-        _paq.push(['setTrackerUrl', u+'matomo.php']);
-        _paq.push(['setSiteId', '1']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-      })();
-    </script>
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --bg: #0f172a;
-            --bg-card: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-        header {
-            padding: 24px 0;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-        }
-        header .container { display: flex; justify-content: space-between; align-items: center; }
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text);
-            text-decoration: none;
-        }
-        .logo span {
-            background: var(--primary);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        nav { display: flex; gap: 32px; }
-        nav a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        nav a:hover { color: var(--text); }
-        .hero { padding: 80px 0; text-align: center; }
-        .hero h1 {
-            font-size: 56px;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 24px;
-        }
-        .hero h1 .highlight {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .hero p {
-            font-size: 20px;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 48px;
-        }
-        .hero-buttons { display: flex; gap: 16px; justify-content: center; }
-        .btn {
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            text-decoration: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
-        .btn-secondary:hover { border-color: var(--primary); }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin: 64px 0;
-        }
-        .stat-card {
-            background: var(--bg-card);
-            padding: 32px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-        .stat-number { font-size: 48px; font-weight: 700; color: var(--primary); }
-        .stat-label { color: var(--text-muted); font-size: 16px; margin-top: 8px; }
-        .servers-section { padding: 64px 0; }
-        .section-title { font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 48px; }
-        .servers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-        }
-        .server-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.2s;
-        }
-        .server-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-        .server-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-        .server-card h3 .badge {
-            background: var(--primary);
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        .server-card p { font-size: 14px; color: var(--text-muted); }
-        .server-card .tools-count { font-size: 12px; color: var(--secondary); margin-top: 12px; }
-        footer {
-            padding: 48px 0;
-            border-top: 1px solid var(--border);
-            margin-top: 64px;
-        }
-        footer .container { display: flex; justify-content: space-between; align-items: center; }
-        footer p { color: var(--text-muted); font-size: 14px; }
-        footer a { color: var(--primary); text-decoration: none; }
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin: 48px 0;
-        }
-        .feature { text-align: center; padding: 24px; }
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 24px;
-        }
-        .feature h3 { font-size: 18px; margin-bottom: 8px; }
-        .feature p { font-size: 14px; color: var(--text-muted); }
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 36px; }
-            .stats, .features { grid-template-columns: 1fr; }
-            nav { display: none; }
-            .hero-buttons { flex-direction: column; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Registry | The Skill Registry for AI Agents</title>
+  <meta name="description" content="Discover reusable MCP skills for AI agents." />
+  <style>
+    body { margin:0; font-family: Inter, system-ui, sans-serif; background:#0f172a; color:#f8fafc; line-height:1.6; }
+    .container { max-width:1100px; margin:auto; padding:2rem; }
+    .hero { text-align:center; padding:6rem 0; }
+    h1 { font-size:3.5rem; line-height:1.1; margin-bottom:1rem; }
+    .gradient { background:linear-gradient(90deg,#6366f1,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .btn { display:inline-block; margin:0.5rem; padding:0.9rem 1.5rem; border-radius:10px; text-decoration:none; font-weight:600; }
+    .primary { background:#6366f1; color:white; }
+    .secondary { border:1px solid #334155; color:white; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:4rem 0; }
+    .card { background:#1e293b; padding:2rem; border-radius:16px; text-align:center; }
+    a { color: inherit; }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <a href="/" class="logo">MCP Registry <span>by AgentNxt</span></a>
-            <nav>
-                <a href="#servers">Servers</a>
-                <a href="https://github.com/agnxxt/mcp-registry" target="_blank">GitHub</a>
-                <a href="https://hub.docker.com/u/agentnxt" target="_blank">Docker Hub</a>
-            </nav>
-        </div>
-    </header>
-    <section class="hero">
-        <div class="container">
-            <h1>Production-Ready<br><span class="highlight">MCP Servers</span></h1>
-            <p>70+ Model Context Protocol servers for your AI applications. Deploy anywhere, connect to everything.</p>
-            <div class="hero-buttons">
-                <a href="#servers" class="btn btn-primary">Browse Servers →</a>
-                <a href="https://github.com/agnxxt/mcp-registry" class="btn btn-secondary" target="_blank">View on GitHub</a>
-            </div>
-        </div>
-    </section>
-    <section class="container">
-        <div class="stats">
-            <div class="stat-card"><div class="stat-number">70+</div><div class="stat-label">MCP Servers</div></div>
-            <div class="stat-card"><div class="stat-number">1000+</div><div class="stat-label">Tools Available</div></div>
-            <div class="stat-card"><div class="stat-number">Docker</div><div class="stat-label">Ready to Deploy</div></div>
-        </div>
-    </section>
-    <section class="container">
-        <div class="features">
-            <div class="feature"><div class="feature-icon">🚀</div><h3>Quick Start</h3><p>Pull from Docker Hub or install via npm. Running in minutes.</p></div>
-            <div class="feature"><div class="feature-icon">🔒</div><h3>Security First</h3><p>Non-root containers, OCI labels, multi-stage builds.</p></div>
-            <div class="feature"><div class="feature-icon">🌐</div><h3>Any Platform</h3><p>TypeScript, Python. Local, Docker, Cloud Run, or npx.</p></div>
-        </div>
-    </section>
-    <section id="servers" class="servers-section">
-        <div class="container">
-            <h2 class="section-title">Available Servers</h2>
-            <div class="servers-grid" id="servers-grid"></div>
-        </div>
-    </section>
-    <footer>
-        <div class="container">
-            <p>© 2026 AgentNxt. All rights reserved.</p>
-            <p><a href="https://github.com/agnxxt/mcp-registry" target="_blank">GitHub</a> · <a href="https://hub.docker.com/u/agentnxt" target="_blank">Docker Hub</a></p>
-        </div>
-    </footer>
-    <script>
-        const servers = [
-{ name: 'agentcrew-mcp-server', desc: 'MCP server for AgentCrew (CrewAI-Studio) — manage agents, tasks, crews, and results' },
-{ name: 'ansible-mcp-server', desc: 'Scaffold MCP server for ansible operations' },
-{ name: 'argilla-mcp-server', desc: 'MCP server for Argilla data labeling platform API' },
-{ name: 'aws-kb-retrieval-mcp-server', desc: 'MCP server for AWS Knowledge Base retrieval using Bedrock Agent Runtime' },
-{ name: 'brave-search-mcp-server', desc: 'Brave Search MCP Server: web results, images, videos, rich results, AI summaries, and more.' },
-{ name: 'calcom-mcp-server', desc: 'MCP server for Cal.com scheduling platform' },
-{ name: 'camunda-mcp-server', desc: 'MCP Server for Camunda process orchestration' },
-{ name: 'cognitive-memory-mcp-server', desc: 'MCP server for Cognitive Memory Engine — memory CRUD, cortex retrieval, and chat integration' },
-{ name: 'dbhub-mcp-server', desc: 'Minimal, token-efficient Database MCP Server for PostgreSQL, MySQL, SQL Server, SQLite, MariaDB' },
-{ name: 'erpnext-mcp-server', desc: 'MCP Server for ERPNext/Frappe REST API' },
-{ name: 'everart-mcp-server', desc: 'MCP server for EverArt API integration' },
-{ name: 'everything-mcp-server', desc: 'MCP server that exercises all the features of the MCP protocol' },
-{ name: 'evidently-mcp-server', desc: 'MCP server for Evidently AI API' },
-{ name: 'evolution-mcp-server', desc: 'MCP server for Evolution API' },
-{ name: 'exa-mcp-server', desc: 'A Model Context Protocol server with Exa for web search and web crawling.' },
-{ name: 'filesystem-mcp-server', desc: 'MCP server for filesystem access' },
-{ name: 'g2-mcp', desc: 'g2 mcp' },
-{ name: 'gcloud-run-mcp-server', desc: 'Scaffold MCP server for gcloud-run operations' },
-{ name: 'gdrive-mcp-server', desc: 'MCP server for interacting with Google Drive' },
-{ name: 'ghost-mcp-server', desc: 'MCP Server for Ghost CMS - Admin API & Content API' },
-{ name: 'github-mcp-server', desc: 'MCP server for using the GitHub API' },
-{ name: 'gitlab-mcp-server', desc: 'MCP server for using the GitLab API' },
-{ name: 'glitchtip-mcp-server', desc: 'MCP Server for GlitchTip error tracking' },
-{ name: 'google-analytics-mcp-server', desc: 'google analytics' },
-{ name: 'google-maps-mcp-server', desc: 'MCP server for Google Maps Platform APIs' },
-{ name: 'grafana-mcp-server', desc: 'MCP server for Grafana API' },
-{ name: 'hostinger-mcp', desc: 'hostinger mcp' },
-{ name: 'lago-mcp-server', desc: 'MCP server for Lago Billing API' },
-{ name: 'langflow-mcp-server', desc: 'MCP Server for Langflow flow management' },
-{ name: 'liferay-mcp-server', desc: 'MCP Server for Liferay Community Portal - Headless REST APIs' },
-{ name: 'liferay-mcp-sync', desc: 'liferay-mcp-sync' },
-{ name: 'limesurvey-mcp-server', desc: 'MCP server for LimeSurvey JSON-RPC API' },
-{ name: 'litellm-mcp-server', desc: 'MCP Server for LiteLLM proxy management' },
-{ name: 'logto-mcp-server', desc: 'MCP Server for Logto Management API & Accounts API (self-hosted)' },
-{ name: 'lxc-mcp-server', desc: 'Scaffold MCP server for lxc operations' },
-{ name: 'marquez-mcp-server', desc: 'marquez-mcp-server' },
-{ name: 'matomo-mcp-server', desc: 'MCP server for Matomo Analytics API' },
-{ name: 'mautic-mcp-server', desc: 'MCP Server for Mautic marketing automation' },
-{ name: 'memory-mcp-server', desc: 'MCP server for enabling memory for Claude through a knowledge graph' },
-{ name: 'microcloud-mcp-server', desc: 'Scaffold MCP server for microcloud operations' },
-{ name: 'mlflow-mcp-server', desc: 'MCP server for MLflow API' },
-{ name: 'n8n-mcp-server', desc: 'MCP Server for n8n workflow automation' },
-{ name: 'nextcloud-mcp-server', desc: 'MCP server for Nextcloud API' },
-{ name: 'nocodb-mcp-server', desc: 'MCP server for NocoDB API' },
-{ name: 'ollama-mcp-server', desc: 'MCP server for Ollama — manage and run local LLM models' },
-{ name: 'opa-mcp-server', desc: 'MCP server for Open Policy Agent (OPA) API' },
-{ name: 'playwright-mcp-server', desc: 'Playwright Tools for MCP' },
-{ name: 'postiz-mcp-server', desc: 'MCP server for Postiz API' },
-{ name: 'qdrant-mcp-server', desc: 'qdrant-mcp-server' },
-{ name: 'redis-mcp-server', desc: 'MCP server for using Redis' },
-{ name: 'rustfs-mcp-server', desc: 'MCP server for RustFS S3-compatible object storage' },
-{ name: 'searxng-mcp-server', desc: 'MCP Server for SearXNG metasearch engine' },
-{ name: 'sequentialthinking-mcp-server', desc: 'MCP server for sequential thinking and problem solving' },
-{ name: 'simstudio-mcp-server', desc: 'MCP server for SimStudio workflow management' },
-{ name: 'skyvern-mcp-server', desc: 'MCP Server for Skyvern browser automation' },
-{ name: 'slack-mcp-server', desc: 'MCP server for interacting with Slack' },
-{ name: 'stalwart-mcp-server', desc: 'MCP Server for Stalwart mail server' },
-{ name: 'surrealdb-mcp-server', desc: 'surrealdb-mcp-server' },
-{ name: 'temporal-mcp-server', desc: 'MCP Server for Temporal workflow orchestration' },
-{ name: 'terraform-mcp-server', desc: 'Scaffold MCP server for terraform operations' },
-{ name: 'tuwunel-mcp-server', desc: 'MCP server for Tuwunel Matrix homeserver API' },
-{ name: 'txtai-mcp-server', desc: 'MCP server for txtai semantic search and embeddings' },
-{ name: 'typebot-mcp-server', desc: 'MCP Server for Typebot chatbot builder' },
-{ name: 'uptime-kuma-mcp-server', desc: 'MCP server for Uptime Kuma v2 monitoring API' },
-{ name: 'woocommerce-mcp-server', desc: 'MCP server for WooCommerce REST API' },
-{ name: 'wuzapi-mcp-server', desc: 'MCP server for WuzAPI WhatsApp API' },
-{ name: 'zabbix-mcp-server', desc: 'MCP Server for Zabbix monitoring' }
-        ];
-        document.getElementById('servers-grid').innerHTML = servers.map(server => 
-            '<a href="https://github.com/agnxxt/mcp-registry/tree/main/' + server.name + '" class="server-card" target="_blank">' +
-            '<h3>' + server.name.replace('-mcp-server', '').replace(/-/g, ' ') + '</h3>' +
-            '<p>' + server.desc + '</p>' +
-            '</a>'
-        ).join('');
-    </script>
+  <section class="hero container">
+    <h1>The <span class="gradient">Skill Registry</span><br/>for MCP Agents</h1>
+    <p>Discover reusable skills that AI agents can dynamically invoke through the Model Context Protocol.</p>
+    <a class="btn primary" href="https://github.com/AGenNext/mcp-registry">View on GitHub</a>
+    <a class="btn secondary" href="#features">Browse Skills</a>
+
+    <div class="stats">
+      <div class="card"><h2>58+</h2><p>Skills</p></div>
+      <div class="card"><h2>1000+</h2><p>Tools</p></div>
+      <div class="card"><h2>Docker</h2><p>Ready</p></div>
+    </div>
+  </section>
+
+  <section id="features" class="container">
+    <h2>Why MCP Registry?</h2>
+    <ul>
+      <li>Standardized skill manifests</li>
+      <li>Portable Docker images</li>
+      <li>Discoverable by AI agents</li>
+      <li>Open source and community-driven</li>
+    </ul>
+  </section>
 </body>
 </html>
