@@ -1,19 +1,37 @@
 {
-  "name": "mcpservers",
+  "name": "mcp-registry",
   "version": "1.0.0",
   "private": true,
-  "description": "MCPHub by AgentNXXT — Production-ready MCP servers for your entire stack",
+  "description": "The Tool Catalog for MCP-compatible AI agents.",
+  "packageManager": "npm@10.9.0",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "build:changed": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "validate": "tsx scripts/validate-registry.ts",
+    "check": "npm run lint && npm run test && npm run validate"
   },
-  "keywords": ["mcp", "model-context-protocol", "agentnxxt", "autonomyx"],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "registry",
+    "tools",
+    "ai-agents",
+    "agentnxt"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agentnxxt/mcpservers.git"
+    "url": "https://github.com/AGenNext/mcp-registry.git"
+  },
+  "devDependencies": {
+    "tsx": "4.20.6"
   }
 }

@@ -1,72 +1,126 @@
-# MCPHub by AgentNxt
+# MCP Registry
 
-**Production-ready MCP servers for your entire stack. 58 servers, 1000+ tools.**
+**The Tool Catalog for MCP-compatible AI agents.**
 
-MCPHub is a registry of Model Context Protocol servers maintained as a Node.js workspace monorepo. Each server lives under `packages/` and can be built, run, packaged, or deployed independently.
+MCP Registry is an open catalog of reusable MCP tools that agents can discover, deploy, and compose through the Model Context Protocol. Each tool package includes focused capabilities, MCP tool definitions, deployment metadata, and runtime instructions.
 
 ---
 
-## Quick Start: Build from source
+## Why Tool Catalog?
+
+Traditional MCP projects describe integrations as servers. MCP Registry organizes them as a discoverable **tool catalog**:
+
+| Traditional MCP View | Tool Catalog View |
+| --- | --- |
+| MCP server | Tool package |
+| Tool endpoint | Tool action |
+| Server metadata | Tool manifest |
+| Docker image | Tool runtime |
+| Server list | Discoverable tool catalog |
+
+---
+
+## What is included
+
+- 58+ MCP-compatible tool packages
+- 1000+ tools across SaaS, developer tools, infrastructure, data, automation, and monitoring
+- Docker-ready runtimes
+- Workspace-based package structure
+- Tool manifest schema and validation workflow
+
+---
+
+## Quick Start
 
 ```bash
-# Clone the repo
 git clone https://github.com/AGenNext/mcp-registry.git
 cd mcp-registry
-
-# Install workspace dependencies
 npm install
+npm run check
+```
 
-# Build every server
+Build every workspace:
+
+```bash
 npm run build
 ```
 
-If some packages are still scaffolded or do not yet expose a build script, use the safer workspace build:
+Build one tool package:
 
 ```bash
-npm run build:changed
+npm run build --workspace=packages/<tool-package-name>
+```
+
+Run a built MCP tool package:
+
+```bash
+node packages/<tool-package-name>/dist/index.js
 ```
 
 ---
 
-## Build a single MCP server
+## Docker
 
 ```bash
-# Example: build the n8n MCP server
-npm run build --workspace=packages/n8n-mcp-server
-```
-
-Run the built server directly:
-
-```bash
-node packages/n8n-mcp-server/dist/index.js
-```
-
-Most packages compile TypeScript into `dist/index.js` and expose that file as the MCP server entry point.
-
----
-
-## Quick Start: Docker
-
-```bash
-# Pull and run any published server from Docker Hub
 docker run -d \
   -e SERVICE_URL="https://your-service.com" \
   -e SERVICE_API_KEY="your-api-key" \
-  agentnxt/<server-name>
-
-# Example: filesystem server
-docker run -d \
-  -e ALLOWED_DIRECTORIES="/data" \
-  agentnxt/filesystem-mcp-server
+  agentnxt/<tool-package-name>
 ```
 
-All published images are available on Docker Hub: https://hub.docker.com/u/agentnxt
+Published images are available on Docker Hub:
+
+https://hub.docker.com/u/agentnxt
 
 ---
 
-## Claude Desktop configuration
+## Tool Manifest
 
-After building a server, add it to Claude Desktop or another MCP-compatible client.
+Each tool package should include a `tool.json` or equivalent manifest:
+
+```json
+{
+  "name": "github-repo-search",
+  "title": "GitHub Repository Search",
+  "description": "Search repositories, issues, and pull requests.",
+  "category": "development",
+  "docker_image": "agentnxt/github-mcp-server",
+  "tools": ["search_repositories", "list_issues"],
+  "auth": ["github_token"],
+  "tags": ["github", "code", "search"]
+}
+```
+
+---
+
+## Recommended Tool Package Layout
+
+```text
+packages/<tool-package-name>/
+  tool.json
+  README.md
+  Dockerfile
+  src/
+    index.ts
+    tools/
+    api/
+  package.json
+  tsconfig.json
+```
+
+---
+
+## Validate the Registry
+
+```bash
+npm run validate
+```
+
+The validator checks for required tool packaging files where applicable.
+
+---
+
+## Claude Desktop Configuration
 
 ```json
 {
@@ -82,87 +136,26 @@ After building a server, add it to Claude Desktop or another MCP-compatible clie
 }
 ```
 
-Use an absolute path in `args` so the MCP client can find the server reliably.
+Use absolute paths so your MCP client can find the runtime reliably.
 
 ---
 
-## Available Servers
+## Contributing
 
-Each package lives under `packages/` and follows the standard layout:
-
-```text
-packages/<server-name>/
-  src/
-    index.ts        # MCP server entry point
-    tools/          # Tool definitions
-    api/            # API client
-  package.json
-  tsconfig.json
-```
-
-Common commands:
-
-```bash
-# Install dependencies
-npm install
-
-# Build every workspace
-npm run build
-
-# Build only workspaces with build scripts
-npm run build:changed
-
-# Build one workspace
-npm run build --workspace=packages/<server-name>
-
-# Run one built server
-node packages/<server-name>/dist/index.js
-```
+Contributions are welcome. Please read `CONTRIBUTING.md` before opening a pull request.
 
 ---
 
-## Environment variables
+## Security
 
-Each MCP server may require different credentials or service URLs. Check the specific package README or source before deployment.
-
-Common examples:
-
-```bash
-SERVICE_URL="https://your-service.com"
-SERVICE_API_KEY="your-api-key"
-ALLOWED_DIRECTORIES="/data"
-```
-
-Never commit secrets into this repository. Use environment variables, Docker secrets, or your deployment platform secret store.
+Please report vulnerabilities privately using the instructions in `SECURITY.md`.
 
 ---
 
-## Deployment model
+## Website
 
-This repository is not a single web app. It is a registry of independent MCP servers.
-
-Recommended deployment flow:
-
-1. Choose the target server under `packages/`.
-2. Install dependencies from the repo root with `npm install`.
-3. Build the selected package with `npm run build --workspace=packages/<server-name>`.
-4. Run the compiled entry point from `dist/index.js`.
-5. Provide required service credentials through environment variables.
+The marketing site can be deployed with GitHub Pages.
 
 ---
 
-## Unboxd Platform Scaffolds
-
-Added scaffold servers for the first platform wave:
-
-- `microcloud-mcp-server`
-- `lxc-mcp-server`
-- `ansible-mcp-server`
-- `terraform-mcp-server`
-- `gcloud-run-mcp-server`
-
-See `docs/unboxd-platform-mcp-roadmap.md` for implementation direction.
-
----
-
-Copyright 2026. All rights reserved AgentNxt. An Autonomyx Platform.
+Copyright 2026 AgentNxt. An Autonomyx Platform.
