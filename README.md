@@ -2,25 +2,117 @@
 
 Agent-Tools is the canonical tool catalog for the AGenNext platform.
 
-A tool is an invocable capability that can be discovered, governed, permissioned, reviewed, and used by agents, workflows, teams, and runtimes.
+This is a cloud marketplace-style catalog problem.
+
+A tool is an invocable product/capability package that can be discovered, governed, versioned, permissioned, reviewed, priced, installed, and used by agents, workflows, teams, and runtimes.
 
 ## Core model
 
 ```text
-Tool Catalog
-  contains Tool records
+Capability
+  = standardized semantic ability
+  = what can be done
 
-Tool Provider
-  exposes one or more Tools
+Tool
+  = catalog product implementing one or more capabilities
 
-MCP Server
-  is one type of Tool Provider
+Tool Version
+  = versioned contract for a tool
 
-One MCP server
-  can expose many tools
+Provider Offer
+  = one way to access a specific tool version
+
+Provider
+  = organization, package, service, MCP server, CLI, SDK, HTTP API, or runtime endpoint offering the tool version
 ```
 
-Therefore this repository is not only an MCP registry. MCP is an integration/provider protocol inside the broader tool catalog.
+The primary catalog object is the **Tool**.
+
+Capabilities standardize meaning. Versions standardize compatibility. Providers describe how a specific version is obtained or invoked.
+
+## Marketplace rule
+
+```text
+One Capability
+  can be implemented by many Tools
+
+One Tool
+  can implement many Capabilities
+
+One Tool
+  can have many Versions
+
+One Tool Version
+  can have many Provider Offers
+
+One Provider
+  can offer many Tools
+
+One MCP Server
+  is a Provider type
+
+One MCP Server
+  can expose many Tool Versions
+```
+
+## Example: capability, tool, version, providers
+
+```yaml
+id: filesystem.read_file
+type: tool
+name: Read File
+capabilities:
+  - file.read
+
+versions:
+  - version: 1.0.0
+    contract:
+      inputs:
+        path: string
+      outputs:
+        content: string
+    providers:
+      - provider_id: filesystem-mcp-server
+        provider_type: mcp_server
+        protocol: mcp
+        package_path: packages/filesystem-mcp-server
+        offer_status: active
+
+      - provider_id: internal-filesystem-http
+        provider_type: http_api
+        protocol: https
+        offer_status: active
+```
+
+## Example: open-source tool with multiple providers
+
+```yaml
+id: surrealkit
+type: tool
+name: SurrealKit
+capabilities:
+  - database.schema.generate
+  - database.migration.run
+  - database.seed.load
+
+versions:
+  - version: 2.2.1
+    providers:
+      - provider_id: surrealkit-github-release
+        provider_type: github_release
+        install_strategy: pinned_binary
+        version_policy: pinned
+
+      - provider_id: surrealkit-npm
+        provider_type: npm_package
+        install_strategy: package_manager
+        version_policy: pinned
+
+      - provider_id: agennext-ci-wrapper
+        provider_type: ci_wrapper
+        install_strategy: workflow_script
+        version_policy: pinned
+```
 
 ## Repository responsibilities
 
@@ -28,12 +120,13 @@ Agent-Tools owns:
 
 ```text
 - tool catalog entries
+- capability references used by tools
+- version contracts
+- provider offer metadata
 - external tool definitions
-- provider definitions
-- MCP provider package metadata
-- tool capability metadata
+- MCP provider/package metadata where needed
 - tool invocation contracts
-- tool security and approval metadata
+- tool security, approval, and governance metadata
 ```
 
 Agent-Tools does not own:
@@ -59,11 +152,15 @@ Example:
 catalog/surrealkit.tool.yaml
 ```
 
+Each file should describe a tool first.
+
+Provider details belong under the specific tool version they support.
+
 ### `packages/`
 
-Existing folders under `packages/` are treated as **tool provider packages**.
+Existing folders under `packages/` are provider implementation packages.
 
-Most current packages are MCP server providers. They should be migrated conceptually from:
+Most current packages are MCP server implementations. They should be migrated conceptually from:
 
 ```text
 MCP server = catalog item
@@ -72,16 +169,17 @@ MCP server = catalog item
 to:
 
 ```text
-MCP server = provider package
-provider package exposes one or more cataloged tools
+Tool = catalog item
+Tool Version = versioned contract
+MCP server = provider offer for one or more tool versions
 ```
 
 Recommended package structure:
 
 ```text
 packages/<provider-name>/
-  provider.yaml          # provider metadata
-  tools/                 # tool catalog entries exposed by this provider
+  provider.yaml          # provider/package metadata
+  tools/                 # tool catalog entries exposed through this provider
     <tool-id>.tool.yaml
   src/                   # provider implementation
   package.json
@@ -90,27 +188,56 @@ packages/<provider-name>/
 
 ## MCP provider model
 
-An MCP server package should declare:
+An MCP server package should declare which tool versions it provides:
 
 ```yaml
-provider_id: filesystem-mcp-provider
+provider_id: filesystem-mcp-server
 provider_type: mcp_server
-exposes_tools:
-  - filesystem.read_file
-  - filesystem.write_file
-  - filesystem.list_directory
+provides:
+  - tool_id: filesystem.read_file
+    version: 1.0.0
+  - tool_id: filesystem.write_file
+    version: 1.0.0
+  - tool_id: filesystem.list_directory
+    version: 1.0.0
 ```
 
-Each exposed tool should have a catalog entry with:
+Each exposed tool should have a catalog entry with provider offer metadata:
 
 ```yaml
 id: filesystem.read_file
 type: tool
-provider: filesystem-mcp-provider
-protocol: mcp
+capabilities:
+  - file.read
+versions:
+  - version: 1.0.0
+    providers:
+      - provider_id: filesystem-mcp-server
+        provider_type: mcp_server
+        protocol: mcp
 risk: medium
 approval_required: false
 ```
+
+## Capability standardization
+
+Capabilities should be stable semantic identifiers.
+
+Examples:
+
+```text
+file.read
+file.write
+filesystem.list
+database.query
+database.schema.generate
+database.migration.run
+database.seed.load
+cloud.compute.create
+cloud.storage.object.read
+```
+
+Capabilities allow the platform to compare tools, substitute providers, reason about risk, and match skills to tools.
 
 ## Build existing provider packages
 
@@ -150,12 +277,15 @@ Do not delete existing provider packages immediately.
 Migrate them in place:
 
 ```text
-1. Add provider.yaml to each package.
-2. Identify tools exposed by that provider.
-3. Add one .tool.yaml catalog entry per exposed tool.
-4. Mark provider risk and auth requirements.
-5. Keep implementation under src/.
-6. Build and test provider package.
+1. Identify the tools exposed by each provider package.
+2. Identify capabilities implemented by each tool.
+3. Add one .tool.yaml catalog entry per tool.
+4. Add versions under each tool.
+5. Add provider offers under each version.
+6. Add provider.yaml only for package/build/runtime metadata.
+7. Mark tool risk, approval requirements, auth, pricing, license, and support metadata where known.
+8. Keep implementation under src/.
+9. Build and test provider package.
 ```
 
 ## Relationship to other repos
@@ -165,13 +295,13 @@ Agent-Skills
   uses tools as executable capabilities
 
 Agent-Graph
-  maps tools, providers, permissions, and invocations
+  maps tools, capabilities, providers, versions, permissions, and invocations
 
 Agent-Grammar
-  validates tool and provider records
+  validates tool, capability, version, and provider metadata
 
 Agent-Seed
-  seeds default platform tool/provider records
+  seeds default platform tool/capability records
 
 Agent-Review
   reviews high-risk tools before publication/use
@@ -179,12 +309,19 @@ Agent-Review
 
 ## Rule
 
-A provider is not the same thing as a tool.
-
 ```text
-MCP server/provider
-  != Tool
+Capability
+  = semantic ability
 
-MCP server/provider
-  exposes Tools
+Tool
+  = catalog product implementing capabilities
+
+Tool Version
+  = versioned contract
+
+Provider Offer
+  = access path for a specific tool version
+
+MCP Server
+  = provider type, not the tool itself
 ```
