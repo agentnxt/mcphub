@@ -1,129 +1,137 @@
-# MCPHub by AgentNxt
+# Agent-Tools
 
-**Production-ready MCP servers for your entire stack. 58 servers, 1000+ tools.**
+Agent-Tools is the canonical tool catalog for the AGenNext platform.
 
-MCPHub is a registry of Model Context Protocol servers maintained as a Node.js workspace monorepo. Each server lives under `packages/` and can be built, run, packaged, or deployed independently.
+A tool is an invocable capability that can be discovered, governed, permissioned, reviewed, and used by agents, workflows, teams, and runtimes.
 
----
-
-## Quick Start: Build from source
-
-```bash
-# Clone the repo
-git clone https://github.com/AGenNext/mcp-registry.git
-cd mcp-registry
-
-# Install workspace dependencies
-npm install
-
-# Build every server
-npm run build
-```
-
-If some packages are still scaffolded or do not yet expose a build script, use the safer workspace build:
-
-```bash
-npm run build:changed
-```
-
----
-
-## Build a single MCP server
-
-```bash
-# Example: build the n8n MCP server
-npm run build --workspace=packages/n8n-mcp-server
-```
-
-Run the built server directly:
-
-```bash
-node packages/n8n-mcp-server/dist/index.js
-```
-
-Most packages compile TypeScript into `dist/index.js` and expose that file as the MCP server entry point.
-
----
-
-## Quick Start: Docker
-
-```bash
-# Pull and run any published server from Docker Hub
-docker run -d \
-  -e SERVICE_URL="https://your-service.com" \
-  -e SERVICE_API_KEY="your-api-key" \
-  agentnxt/<server-name>
-
-# Example: filesystem server
-docker run -d \
-  -e ALLOWED_DIRECTORIES="/data" \
-  agentnxt/filesystem-mcp-server
-```
-
-All published images are available on Docker Hub: https://hub.docker.com/u/agentnxt
-
----
-
-## Claude Desktop configuration
-
-After building a server, add it to Claude Desktop or another MCP-compatible client.
-
-```json
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-registry/packages/filesystem-mcp-server/dist/index.js"],
-      "env": {
-        "ALLOWED_DIRECTORIES": "/data"
-      }
-    }
-  }
-}
-```
-
-Use an absolute path in `args` so the MCP client can find the server reliably.
-
----
-
-## Available Servers
-
-Each package lives under `packages/` and follows the standard layout:
+## Core model
 
 ```text
-packages/<server-name>/
-  src/
-    index.ts        # MCP server entry point
-    tools/          # Tool definitions
-    api/            # API client
+Tool Catalog
+  contains Tool records
+
+Tool Provider
+  exposes one or more Tools
+
+MCP Server
+  is one type of Tool Provider
+
+One MCP server
+  can expose many tools
+```
+
+Therefore this repository is not only an MCP registry. MCP is an integration/provider protocol inside the broader tool catalog.
+
+## Repository responsibilities
+
+Agent-Tools owns:
+
+```text
+- tool catalog entries
+- external tool definitions
+- provider definitions
+- MCP provider package metadata
+- tool capability metadata
+- tool invocation contracts
+- tool security and approval metadata
+```
+
+Agent-Tools does not own:
+
+```text
+- runtime execution of agents
+- skill definitions
+- agent blueprints
+- graph schema
+- grammar rules
+- seed-data ownership
+```
+
+## Current folders
+
+### `catalog/`
+
+Canonical catalog entries for tools and external tools.
+
+Example:
+
+```text
+catalog/surrealkit.tool.yaml
+```
+
+### `packages/`
+
+Existing folders under `packages/` are treated as **tool provider packages**.
+
+Most current packages are MCP server providers. They should be migrated conceptually from:
+
+```text
+MCP server = catalog item
+```
+
+to:
+
+```text
+MCP server = provider package
+provider package exposes one or more cataloged tools
+```
+
+Recommended package structure:
+
+```text
+packages/<provider-name>/
+  provider.yaml          # provider metadata
+  tools/                 # tool catalog entries exposed by this provider
+    <tool-id>.tool.yaml
+  src/                   # provider implementation
   package.json
   tsconfig.json
 ```
 
-Common commands:
+## MCP provider model
 
-```bash
-# Install dependencies
-npm install
+An MCP server package should declare:
 
-# Build every workspace
-npm run build
-
-# Build only workspaces with build scripts
-npm run build:changed
-
-# Build one workspace
-npm run build --workspace=packages/<server-name>
-
-# Run one built server
-node packages/<server-name>/dist/index.js
+```yaml
+provider_id: filesystem-mcp-provider
+provider_type: mcp_server
+exposes_tools:
+  - filesystem.read_file
+  - filesystem.write_file
+  - filesystem.list_directory
 ```
 
----
+Each exposed tool should have a catalog entry with:
+
+```yaml
+id: filesystem.read_file
+type: tool
+provider: filesystem-mcp-provider
+protocol: mcp
+risk: medium
+approval_required: false
+```
+
+## Build existing provider packages
+
+Existing packages can still be built as Node.js workspaces:
+
+```bash
+npm install
+npm run build
+npm run build:changed
+npm run build --workspace=packages/<provider-name>
+```
+
+Run a built MCP provider directly:
+
+```bash
+node packages/<provider-name>/dist/index.js
+```
 
 ## Environment variables
 
-Each MCP server may require different credentials or service URLs. Check the specific package README or source before deployment.
+Provider packages may require credentials or service URLs.
 
 Common examples:
 
@@ -133,36 +141,50 @@ SERVICE_API_KEY="your-api-key"
 ALLOWED_DIRECTORIES="/data"
 ```
 
-Never commit secrets into this repository. Use environment variables, Docker secrets, or your deployment platform secret store.
+Never commit secrets into this repository. Use environment variables, Docker secrets, or runtime secret stores.
 
----
+## Migration rule for existing packages
 
-## Deployment model
+Do not delete existing provider packages immediately.
 
-This repository is not a single web app. It is a registry of independent MCP servers.
+Migrate them in place:
 
-Recommended deployment flow:
+```text
+1. Add provider.yaml to each package.
+2. Identify tools exposed by that provider.
+3. Add one .tool.yaml catalog entry per exposed tool.
+4. Mark provider risk and auth requirements.
+5. Keep implementation under src/.
+6. Build and test provider package.
+```
 
-1. Choose the target server under `packages/`.
-2. Install dependencies from the repo root with `npm install`.
-3. Build the selected package with `npm run build --workspace=packages/<server-name>`.
-4. Run the compiled entry point from `dist/index.js`.
-5. Provide required service credentials through environment variables.
+## Relationship to other repos
 
----
+```text
+Agent-Skills
+  uses tools as executable capabilities
 
-## Unboxd Platform Scaffolds
+Agent-Graph
+  maps tools, providers, permissions, and invocations
 
-Added scaffold servers for the first platform wave:
+Agent-Grammar
+  validates tool and provider records
 
-- `microcloud-mcp-server`
-- `lxc-mcp-server`
-- `ansible-mcp-server`
-- `terraform-mcp-server`
-- `gcloud-run-mcp-server`
+Agent-Seed
+  seeds default platform tool/provider records
 
-See `docs/unboxd-platform-mcp-roadmap.md` for implementation direction.
+Agent-Review
+  reviews high-risk tools before publication/use
+```
 
----
+## Rule
 
-Copyright 2026. All rights reserved AgentNxt. An Autonomyx Platform.
+A provider is not the same thing as a tool.
+
+```text
+MCP server/provider
+  != Tool
+
+MCP server/provider
+  exposes Tools
+```
